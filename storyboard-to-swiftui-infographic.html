@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storyboard → SwiftUI · ElementQuiz Teaching Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --muted: #7a7f94;
+    --dim: #454960;
+
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.12);
+    --teal: #34d399;
+    --teal-bg: rgba(52,211,153,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --coral: #fb7185;
+    --coral-bg: rgba(251,113,133,0.1);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.1);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 48px 24px 80px;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    margin-bottom: 64px;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -48px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse at center, rgba(167,139,250,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--purple);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, #e8eaf0 0%, #a78bfa 50%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── Section titles ── */
+  .section { margin-bottom: 56px; }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Mindset shift banner ── */
+  .mindset-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .mindset-col {
+    padding: 28px 24px;
+  }
+  .mindset-col.old { background: rgba(251,113,133,0.06); }
+  .mindset-col.new { background: rgba(52,211,153,0.06); }
+  .mindset-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 0 16px;
+    font-size: 20px;
+    color: var(--muted);
+  }
+  .mindset-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .mindset-col.old .mindset-tag { color: var(--coral); }
+  .mindset-col.new .mindset-tag { color: var(--teal); }
+  .mindset-item {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .mindset-item:last-child { border-bottom: none; }
+  .mindset-item .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  .mindset-col.old .dot { background: var(--coral); }
+  .mindset-col.new .dot { background: var(--teal); }
+
+  /* ── Concept cards ── */
+  .concepts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .concept-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .concept-card.purple::before { background: var(--purple); }
+  .concept-card.teal::before   { background: var(--teal); }
+  .concept-card.amber::before  { background: var(--amber); }
+  .concept-card.coral::before  { background: var(--coral); }
+  .concept-card.blue::before   { background: var(--blue); }
+  .concept-card:hover { border-color: var(--border2); }
+
+  .concept-keyword {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .concept-card.purple .concept-keyword { color: var(--purple); }
+  .concept-card.teal   .concept-keyword { color: var(--teal); }
+  .concept-card.amber  .concept-keyword { color: var(--amber); }
+  .concept-card.coral  .concept-keyword { color: var(--coral); }
+  .concept-card.blue   .concept-keyword { color: var(--blue); }
+
+  .concept-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .concept-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .concept-analogy {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--dim);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .concept-analogy span { color: var(--muted); }
+
+  /* ── Code comparison ── */
+  .compare-pair { margin-bottom: 28px; }
+  .compare-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .compare-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .code-panel {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .code-header {
+    padding: 7px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .code-header.old { background: rgba(251,113,133,0.12); color: var(--coral); }
+  .code-header.new { background: rgba(52,211,153,0.1);  color: var(--teal); }
+  .code-header .dot2 {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .code-header.old .dot2 { background: var(--coral); }
+  .code-header.new .dot2 { background: var(--teal); }
+  pre {
+    background: var(--surface2);
+    padding: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.75;
+    overflow-x: auto;
+    color: var(--text);
+  }
+  .kw  { color: #c084fc; }
+  .str { color: #86efac; }
+  .cm  { color: #4b5563; font-style: italic; }
+  .fn  { color: #93c5fd; }
+  .num { color: #fde68a; }
+
+  /* ── Architecture diagram ── */
+  .arch-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .arch-layer {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 0;
+    min-height: 72px;
+  }
+  .arch-tier-label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: right;
+  }
+  .arch-box-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .arch-connector {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    padding-left: 22px;
+    height: 28px;
+    color: var(--dim);
+    font-size: 16px;
+  }
+  .arch-box {
+    flex: 1;
+    border-radius: 10px;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+  }
+  .arch-box.model  { background: var(--purple-bg); border-color: rgba(167,139,250,0.2); }
+  .arch-box.vm     { background: var(--teal-bg);   border-color: rgba(52,211,153,0.2); }
+  .arch-box.view   { background: var(--amber-bg);  border-color: rgba(251,191,36,0.2); }
+  .arch-box.leaf   { background: var(--blue-bg);   border-color: rgba(96,165,250,0.2); }
+  .arch-box-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .arch-box.model .arch-box-name  { color: var(--purple); }
+  .arch-box.vm    .arch-box-name  { color: var(--teal); }
+  .arch-box.view  .arch-box-name  { color: var(--amber); }
+  .arch-box.leaf  .arch-box-name  { color: var(--blue); }
+  .arch-box-desc {
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  .arch-files-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: 130px;
+    margin-top: 20px;
+  }
+  .arch-file-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    background: var(--surface);
+  }
+
+  /* ── Rules grid ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .rule-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .rule-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--surface2);
+    margin-bottom: 4px;
+  }
+  .rule-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .rule-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 72px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+  .footer-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .footer-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+  }
+
+  @media (max-width: 600px) {
+    .mindset-grid { grid-template-columns: 1fr; }
+    .mindset-divider { display: none; }
+    .compare-cols { grid-template-columns: 1fr; }
+    .arch-layer { grid-template-columns: 80px 1fr; }
+    .arch-tier-label { font-size: 9px; padding-right: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Hero ── -->
+  <div class="hero">
+    <div class="eyebrow">Philbert.io · iOS Modernisation Sprint</div>
+    <h1>Storyboard<br>→ SwiftUI</h1>
+    <p class="hero-sub">A junior developer's field guide to the ElementQuiz rebuild</p>
+  </div>
+
+  <!-- ── 1. Mindset shift ── -->
+  <div class="section">
+    <div class="section-label">01 · The mental model shift</div>
+    <div class="mindset-grid">
+      <div class="mindset-col old">
+        <div class="mindset-tag">UIKit / Storyboard</div>
+        <div class="mindset-item"><span class="dot"></span>Imperative — tell the UI what to do</div>
+        <div class="mindset-item"><span class="dot"></span>ViewController owns everything</div>
+        <div class="mindset-item"><span class="dot"></span>Outlets + IBActions wired in canvas</div>
+        <div class="mindset-item"><span class="dot"></span>You manually sync data → UI</div>
+        <div class="mindset-item"><span class="dot"></span>Class-based, reference semantics</div>
+      </div>
+      <div class="mindset-divider">→</div>
+      <div class="mindset-col new">
+        <div class="mindset-tag">SwiftUI</div>
+        <div class="mindset-item"><span class="dot"></span>Declarative — describe what it should look like</div>
+        <div class="mindset-item"><span class="dot"></span>ViewModel owns logic, View owns layout</div>
+        <div class="mindset-item"><span class="dot"></span>@State, @Binding, closures inline</div>
+        <div class="mindset-item"><span class="dot"></span>UI automatically reacts to state changes</div>
+        <div class="mindset-item"><span class="dot"></span>Struct-based, value semantics</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. Key concepts ── -->
+  <div class="section">
+    <div class="section-label">02 · Core SwiftUI concepts</div>
+    <div class="concepts-grid">
+
+      <div class="concept-card purple">
+        <div class="concept-keyword">@State</div>
+        <div class="concept-name">Local view state</div>
+        <div class="concept-desc">Marks a value owned by a view. When it changes, SwiftUI automatically re-renders the relevant parts — no updateElement() needed.</div>
+        <div class="concept-analogy">Was → <span>var currentElementIndex = 0</span></div>
+      </div>
+
+      <div class="concept-card teal">
+        <div class="concept-keyword">@Binding</div>
+        <div class="concept-name">Two-way connection</div>
+        <div class="concept-desc">Lets a child view read AND write a value that lives in a parent. Pass with $ prefix. No delegate pattern, no callbacks.</div>
+        <div class="concept-analogy">Was → <span>@IBAction + @IBOutlet pair</span></div>
+      </div>
+
+      <div class="concept-card amber">
+        <div class="concept-keyword">@ObservableObject</div>
+        <div class="concept-name">Shared reactive state</div>
+        <div class="concept-desc">A class whose @Published properties trigger view updates across the whole app. The ViewModel uses this to broadcast changes.</div>
+        <div class="concept-analogy">Was → <span>Shared data model + manual reload</span></div>
+      </div>
+
+      <div class="concept-card coral">
+        <div class="concept-keyword">View struct</div>
+        <div class="concept-name">The new ViewController</div>
+        <div class="concept-desc">Every UI component is a struct conforming to View. No viewDidLoad, no outlets — just a body property returning the layout.</div>
+        <div class="concept-analogy">Was → <span>class ViewController: UIViewController</span></div>
+      </div>
+
+      <div class="concept-card blue">
+        <div class="concept-keyword">.modifier()</div>
+        <div class="concept-name">Chained configuration</div>
+        <div class="concept-desc">Configure views by chaining modifiers. Each returns a new view with that change applied. Order matters — think of it as a pipeline.</div>
+        <div class="concept-analogy">Was → <span>label.font = ...; label.textColor = ...</span></div>
+      </div>
+
+      <div class="concept-card purple">
+        <div class="concept-keyword">body: some View</div>
+        <div class="concept-name">Declarative UI description</div>
+        <div class="concept-desc">body is a computed property. SwiftUI calls it whenever state changes. You return a description of the UI — SwiftUI handles the diff and update.</div>
+        <div class="concept-analogy">Was → <span>viewDidLoad() + manual setup calls</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── 3. Code comparison ── -->
+  <div class="section">
+    <div class="section-label">03 · Side-by-side code comparison</div>
+
+    <div class="compare-pair">
+      <div class="compare-label">Displaying the current element</div>
+      <div class="compare-cols">
+        <div class="code-panel">
+          <div class="code-header old"><span class="dot2"></span>UIKit</div>
+          <pre><span class="kw">func</span> <span class="fn">updateElement</span>() {
+  <span class="kw">let</span> name = elementList[index]
+  imageView.image =
+    UIImage(named: name)  <span class="cm">// imperative</span>
+  answerLabel.text = <span class="str">"?"</span>
+  <span class="cm">// Must call manually every time</span>
+}</pre>
+        </div>
+        <div class="code-panel">
+          <div class="code-header new"><span class="dot2"></span>SwiftUI</div>
+          <pre>Image(vm.currentElement.name)
+  .resizable()
+  .scaledToFit()  <span class="cm">// declarative</span>
+
+<span class="cm">// Automatically updates when</span>
+<span class="cm">// vm.currentIndex changes</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-label">Showing the answer</div>
+      <div class="compare-cols">
+        <div class="code-panel">
+          <div class="code-header old"><span class="dot2"></span>UIKit</div>
+          <pre><span class="cm">// Requires @IBOutlet + @IBAction</span>
+<span class="cm">// wired in Interface Builder</span>
+@IBAction <span class="kw">func</span> <span class="fn">showAnswer</span>(_ s: Any) {
+  answerLabel.text =
+    elementList[currentIndex]
+}</pre>
+        </div>
+        <div class="code-panel">
+          <div class="code-header new"><span class="dot2"></span>SwiftUI</div>
+          <pre>Text(vm.isRevealed
+  ? vm.currentElement.name
+  : <span class="str">"?"</span>)
+
+Button(<span class="str">"Show Answer"</span>) {
+  vm.isRevealed = <span class="kw">true</span>  <span class="cm">// one line</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-label">Navigating to the next element</div>
+      <div class="compare-cols">
+        <div class="code-panel">
+          <div class="code-header old"><span class="dot2"></span>UIKit</div>
+          <pre>@IBAction <span class="kw">func</span> <span class="fn">next</span>(_ s: Any) {
+  currentIndex += <span class="num">1</span>
+  <span class="kw">if</span> currentIndex >= count {
+    currentIndex = <span class="num">0</span>
+  }
+  <span class="fn">updateElement</span>()  <span class="cm">// easy to forget</span>
+}</pre>
+        </div>
+        <div class="code-panel">
+          <div class="code-header new"><span class="dot2"></span>SwiftUI</div>
+          <pre><span class="cm">// In ViewModel:</span>
+<span class="kw">func</span> <span class="fn">nextElement</span>() {
+  currentIndex =
+    (currentIndex + <span class="num">1</span>) % count
+  isRevealed = <span class="kw">false</span>  <span class="cm">// auto-reset</span>
+}
+<span class="cm">// Button calls vm.nextElement()</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. Architecture ── -->
+  <div class="section">
+    <div class="section-label">04 · MVVM file structure</div>
+    <div class="arch-flow">
+
+      <div class="arch-layer">
+        <div class="arch-tier-label">Model</div>
+        <div class="arch-box-wrap">
+          <div class="arch-box model">
+            <div class="arch-box-name">Element.swift</div>
+            <div class="arch-box-desc">Plain Swift struct — pure data, no UIKit, no SwiftUI</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-layer" style="height:24px;">
+        <div></div>
+        <div class="arch-connector">↓</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-tier-label">ViewModel</div>
+        <div class="arch-box-wrap">
+          <div class="arch-box vm">
+            <div class="arch-box-name">QuizViewModel.swift</div>
+            <div class="arch-box-desc">@ObservableObject — owns quiz logic and @Published state</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-layer" style="height:24px;">
+        <div></div>
+        <div class="arch-connector">↓</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-tier-label">Root View</div>
+        <div class="arch-box-wrap">
+          <div class="arch-box view">
+            <div class="arch-box-name">ContentView.swift</div>
+            <div class="arch-box-desc">@StateObject — orchestrates child views, no logic</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-layer" style="height:24px;">
+        <div></div>
+        <div class="arch-connector">↓</div>
+      </div>
+
+      <div class="arch-layer">
+        <div class="arch-tier-label">Components</div>
+        <div class="arch-box-wrap">
+          <div class="arch-box leaf">
+            <div class="arch-box-name">Leaf views</div>
+            <div class="arch-box-desc">ElementCardView · AnswerBadge · QuizButtonRow — each does one thing</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="arch-files-row">
+      <span class="arch-file-chip">Element.swift</span>
+      <span class="arch-file-chip">QuizViewModel.swift</span>
+      <span class="arch-file-chip">ContentView.swift</span>
+      <span class="arch-file-chip">ElementCardView.swift</span>
+      <span class="arch-file-chip">AnswerBadge.swift</span>
+      <span class="arch-file-chip">QuizButtonRow.swift</span>
+    </div>
+  </div>
+
+  <!-- ── 5. Golden rules ── -->
+  <div class="section">
+    <div class="section-label">05 · Golden rules for junior devs</div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-num">01</div>
+        <div class="rule-title">State lives in one place</div>
+        <div class="rule-desc">Never duplicate state across two views. One source of truth, passed down via @Binding or @ObservedObject.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">02</div>
+        <div class="rule-title">Views describe, don't act</div>
+        <div class="rule-desc">A view should return layout and read state. Logic (next, reveal) goes in the ViewModel, not in body.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">03</div>
+        <div class="rule-title">$ means two-way</div>
+        <div class="rule-desc">Pass $value when a child needs to write back. Pass value (no $) when the child only reads it.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">04</div>
+        <div class="rule-title">Small views, clear names</div>
+        <div class="rule-desc">If body gets long, extract a subview. ElementCardView is easier to find and edit than 40 lines buried in ContentView.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">05</div>
+        <div class="rule-title">@StateObject owns, @ObservedObject borrows</div>
+        <div class="rule-desc">The view that creates the ViewModel uses @StateObject. Views that receive it from a parent use @ObservedObject.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">06</div>
+        <div class="rule-title">Forget updateUI()</div>
+        <div class="rule-desc">You will never call a refresh method. Mutate @Published state — SwiftUI handles the rest automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <div class="footer">
+    <div class="footer-brand">Philbert.io</div>
+    <div class="footer-meta">ElementQuiz · iOS Modernisation Sprint · SwiftUI Teaching Artifact</div>
+  </div>
+
+</div>
+</body>
+</html>
